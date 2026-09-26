@@ -1,0 +1,53 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.env
+*.env.*
+!.env.example
+.envrc
+*.key
+*.pem
+secrets/
+credentials/
+
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Python caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Local databases and runtime data
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+
+# Build and coverage output
+dist/
+build/
+.next/
+out/
+coverage/
+
+# Logs and temporary files
+*.log
+.tmp/
+tmp/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Local tooling
+.turbo/
+.vercel/

@@ -5,16 +5,44 @@ npm-debug.log*
 # Build outputs
 dist/
 build/
+.next/
+out/
+coverage/
 
-# Environment files
+# Environment and secrets
 .env
+.env.*
+!.env.example
+*.env
+*.env.*
+!.env.example
+.envrc
+*.key
+*.pem
+secrets/
+credentials/
 
-# SQLite database files
+# Local databases and runtime data
 database/*.db
 database/*.db-journal
+*.db
+*.sqlite
+*.sqlite3
 
-# OS files
+# Logs and temporary files
+*.log
+.tmp/
+tmp/
+
+# OS and editor files
 .DS_Store
 Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Local tooling
+.turbo/
+.vercel/
 EXAMPLE.env.txt
-.env.example

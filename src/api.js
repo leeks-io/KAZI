@@ -7,7 +7,9 @@
  * In PRODUCTION: VITE_API_URL = "https://kazi-1-3bl6.onrender.com"
  *                fetch calls become absolute URLs pointing at Render
  */
-export const API_BASE = import.meta.env.VITE_API_URL || '';
+const RENDER_API_URL = 'https://kazi-1-3bl6.onrender.com';
+
+export const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? RENDER_API_URL : '');
 
 /**
  * Convenience wrapper — usage:

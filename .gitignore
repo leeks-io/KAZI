@@ -46,3 +46,5 @@ Thumbs.db
 .turbo/
 .vercel/
 EXAMPLE.env.txt
+.vercel
+.env*

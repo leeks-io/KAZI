@@ -1,0 +1,49 @@
+{
+  "name": "kazi",
+  "version": "1.0.0",
+  "description": "Kazi — Voice-first job-matching platform for Africa's informal economy",
+  "main": "server/index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "seed": "node database/initDb.js",
+    "start": "node server/index.js"
+  },
+  "keywords": [
+    "job-matching",
+    "informal-economy",
+    "voice-first",
+    "africa",
+    "telegram-bot",
+    "gemini-ai",
+    "sqlite"
+  ],
+  "author": "Kazi Team",
+  "license": "MIT",
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "framer-motion": "^11.5.4",
+    "jsonwebtoken": "^9.0.3",
+    "lucide-react": "^0.441.0",
+    "mammoth": "^1.8.0",
+    "multer": "^1.4.5-lts.1",
+    "pdf-parse": "^1.1.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "sqlite3": "^5.1.7",
+    "telegraf": "^4.16.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.11",
+    "vite": "^5.4.6"
+  }
+}

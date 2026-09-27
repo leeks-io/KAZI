@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kazi — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --green:#1A5C38;--green-mid:#2E7D52;--green-light:#E8F5EE;--green-hover:#155130;
+  --gold:#F5A623;--gold-light:#FEF3DC;
+  --charcoal:#1C1C1E;--body:#4A4A4A;--muted:#8A8A8A;
+  --border:#E2EDE7;--white:#FFFFFF;--bg:#F7FAF8;--bg2:#F0F5F2;
+  --red:#C0392B;--radius:12px;--sidebar:240px;
+}
+html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--charcoal);-webkit-font-smoothing:antialiased;}
+
+/* ── APP SHELL ── */
+.app{display:flex;height:100vh;overflow:hidden;}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:var(--sidebar);flex-shrink:0;
+  background:var(--green);
+  display:flex;flex-direction:column;
+  padding:0;overflow-y:auto;
+  transition:transform .25s;
+  z-index:20;
+}
+.sidebar-logo{
+  display:flex;align-items:center;gap:10px;
+  padding:20px 20px 16px;
+  border-bottom:1px solid rgba(255,255,255,.1);
+}
+.logo-mark{
+  width:34px;height:34px;background:var(--white);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:800;color:var(--green);flex-shrink:0;
+}
+.logo-text{font-size:20px;font-weight:800;color:var(--white);letter-spacing:-.5px;}
+.logo-text span{color:var(--gold);}
+
+.sidebar-role{
+  margin:12px 12px 4px;
+  background:rgba(255,255,255,.08);
+  border-radius:8px;padding:10px 12px;
+}
+.role-label{font-size:10px;color:rgba(255,255,255,.5);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+.role-toggle{display:flex;gap:6px;}
+.role-btn{
+  flex:1;padding:6px 8px;border:none;border-radius:6px;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;font-weight:700;
+  cursor:pointer;transition:background .2s,color .2s;
+  background:transparent;color:rgba(255,255,255,.5);
+}
+.role-btn.active{background:var(--white);color:var(--green);}
+
+.nav-section{padding:16px 12px 4px;}
+.nav-section-label{font-size:10px;color:rgba(255,255,255,.4);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;padding:0 8px;}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 12px;border-radius:8px;
+  color:rgba(255,255,255,.7);font-size:13px;font-weight:600;
+  cursor:pointer;transition:background .15s,color .15s;margin-bottom:2px;
+  border:none;background:transparent;width:100%;text-align:left;
+}
+.nav-item:hover{background:rgba(255,255,255,.08);color:var(--white);}
+.nav-item.active{background:rgba(255,255,255,.15);color:var(--white);}
+.nav-item .icon{font-size:16px;width:20px;text-align:center;flex-shrink:0;}
+.nav-badge{
+  margin-left:auto;background:var(--gold);color:var(--charcoal);
+  font-size:10px;font-weight:800;padding:2px 6px;border-radius:10px;
+}
+.sidebar-bottom{margin-top:auto;padding:12px;border-top:1px solid rgba(255,255,255,.1);}
+.user-chip{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:8px;cursor:pointer;
+  transition:background .15s;
+}
+.user-chip:hover{background:rgba(255,255,255,.08);}
+.avatar{
+  width:32px;height:32px;background:var(--gold);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:800;color:var(--charcoal);flex-shrink:0;
+}
+.user-info{flex:1;min-width:0;}
+.user-name{font-size:13px;font-weight:700;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.user-role{font-size:11px;color:rgba(255,255,255,.5);}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden;}
+
+/* ── TOPBAR ── */
+.topbar{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 20px;background:var(--white);
+  border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.topbar-title{font-size:16px;font-weight:800;color:var(--charcoal);flex:1;}
+.topbar-actions{display:flex;align-items:center;gap:8px;}
+.icon-btn{
+  width:36px;height:36px;border:1.5px solid var(--border);border-radius:8px;
+  background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:16px;position:relative;transition:border-color .15s;
+}
+.icon-btn:hover{border-color:var(--green);}
+.notif-dot{
+  position:absolute;top:6px;right:6px;width:7px;height:7px;
+  background:var(--gold);border-radius:50%;border:1.5px solid var(--white);
+}
+.hamburger{display:none;width:36px;height:36px;border:none;background:none;cursor:pointer;font-size:20px;align-items:center;justify-content:center;}
+
+/* ── CONTENT ── */
+.content{flex:1;overflow:hidden;display:flex;position:relative;}
+
+/* ── PAGES ── */
+.page{display:none;flex:1;overflow:hidden;flex-direction:column;}
+.page.active{display:flex;}
+
+/* ── CHAT PAGE ── */
+.chat-wrap{display:flex;flex:1;overflow:hidden;position:relative;}
+.chat-main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+
+.chat-messages{
+  flex:1;overflow-y:auto;padding:20px;
+  display:flex;flex-direction:column;gap:16px;
+  scroll-behavior:smooth;
+}
+.chat-messages::-webkit-scrollbar{width:4px;}
+.chat-messages::-webkit-scrollbar-track{background:transparent;}
+.chat-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+
+/* welcome */
+.chat-welcome{
+  text-align:center;padding:40px 20px;
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+}
+.welcome-avatar{
+  width:56px;height:56px;background:var(--green);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:24px;
+}
+.welcome-title{font-size:20px;font-weight:800;color:var(--charcoal);}
+.welcome-sub{font-size:14px;color:var(--muted);max-width:320px;line-height:1.6;}
+.quick-chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:8px;}
+.chip{
+  padding:8px 14px;background:var(--white);border:1.5px solid var(--border);
+  border-radius:20px;font-size:13px;font-weight:600;color:var(--body);
+  cursor:pointer;transition:border-color .15s,background .15s;
+}
+.chip:hover{border-color:var(--green);background:var(--green-light);color:var(--green);}
+
+/* messages */
+.msg{display:flex;gap:10px;align-items:flex-start;max-width:680px;}
+.msg.user{flex-direction:row-reverse;margin-left:auto;}
+.msg-avatar{
+  width:32px;height:32px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;
+}
+.msg.bot .msg-avatar{background:var(--green);color:var(--white);}
+.msg.user .msg-avatar{background:var(--gold);color:var(--charcoal);}
+.msg-body{display:flex;flex-direction:column;gap:8px;}
+.msg-bubble{
+  padding:12px 14px;border-radius:12px;font-size:14px;line-height:1.6;
+}
+.msg.bot .msg-bubble{background:var(--white);color:var(--charcoal);border:1px solid var(--border);border-top-left-radius:4px;}
+.msg.user .msg-bubble{background:var(--green);color:var(--white);border-top-right-radius:4px;}
+.msg-time{font-size:11px;color:var(--muted);}
+.msg.user .msg-time{text-align:right;}
+
+/* job cards in chat */
+.job-cards{display:flex;flex-direction:column;gap:10px;width:100%;}
+.job-card{
+  background:var(--white);border:1.5px solid var(--border);border-radius:12px;
+  padding:14px;cursor:pointer;transition:border-color .15s,box-shadow .15s;
+}
+.job-card:hover{border-color:var(--green);box-shadow:0 2px 12px rgba(26,92,56,.1);}
+.job-card-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;}
+.job-icon{
+  width:40px;height:40px;background:var(--green-light);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
+}
+.job-info{flex:1;}
+.job-title{font-size:14px;font-weight:700;color:var(--charcoal);margin-bottom:2px;}
+.job-company{font-size:12px;color:var(--muted);}
+.job-meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
+.job-tag{
+  display:flex;align-items:center;gap:4px;
+  font-size:12px;color:var(--body);background:var(--bg);
+  padding:4px 8px;border-radius:6px;
+}
+.job-match{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.match-tag{
+  font-size:11px;font-weight:600;color:var(--green);
+  background:var(--green-light);padding:3px 8px;border-radius:4px;
+}
+.job-actions{display:flex;gap:8px;}
+.btn-view{
+  flex:1;padding:8px;background:var(--green);color:var(--white);
+  border:none;border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:13px;font-weight:700;cursor:pointer;transition:background .15s;
+}
+.btn-view:hover{background:var(--green-mid);}
+.btn-save{
+  padding:8px 12px;background:var(--white);border:1.5px solid var(--border);
+  border-radius:8px;font-size:13px;cursor:pointer;transition:border-color .15s;
+}
+.btn-save:hover{border-color:var(--green);}
+
+/* typing indicator */
+.typing{display:flex;align-items:center;gap:4px;padding:12px 14px;}
+.dot{width:6px;height:6px;background:var(--muted);border-radius:50%;animation:bounce .8s infinite;}
+.dot:nth-child(2){animation-delay:.15s;}
+.dot:nth-child(3){animation-delay:.3s;}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-6px);}}
+
+/* chat input */
+.chat-input-wrap{
+  padding:16px 20px;background:var(--white);border-top:1px solid var(--border);
+}
+.chat-input-box{
+  display:flex;align-items:center;gap:8px;
+  background:var(--bg);border:1.5px solid var(--border);border-radius:12px;
+  padding:8px 8px 8px 14px;transition:border-color .2s;
+}
+.chat-input-box:focus-within{border-color:var(--green);}
+.chat-input{
+  flex:1;border:none;background:transparent;outline:none;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;color:var(--charcoal);
+  resize:none;line-height:1.5;max-height:100px;overflow-y:auto;
+}
+.chat-input::placeholder{color:var(--muted);}
+.input-btn{
+  width:36px;height:36px;border:none;border-radius:8px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+  transition:background .15s;background:transparent;flex-shrink:0;
+}
+.input-btn:hover{background:var(--bg2);}
+.input-btn.send{background:var(--green);color:var(--white);}
+.input-btn.send:hover{background:var(--green-mid);}
+.input-hint{font-size:11px;color:var(--muted);margin-top:8px;text-align:center;}
+
+/* ── JOB DETAIL PANEL ── */
+.job-detail-panel{
+  width:340px;flex-shrink:0;background:var(--white);
+  border-left:1px solid var(--border);
+  display:flex;flex-direction:column;overflow:hidden;
+  transform:translateX(100%);transition:transform .25s;
+  position:absolute;right:0;top:0;bottom:0;z-index:5;
+}
+.job-detail-panel.open{transform:translateX(0);}
+.panel-header{
+  display:flex;align-items:center;gap:10px;
+  padding:16px 20px;border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.panel-close{
+  width:30px;height:30px;border:none;background:var(--bg);border-radius:6px;
+  cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;
+}
+.panel-title{font-size:15px;font-weight:800;color:var(--charcoal);flex:1;}
+.panel-body{flex:1;overflow-y:auto;padding:20px;}
+.detail-icon{
+  width:52px;height:52px;background:var(--green-light);border-radius:12px;
+  display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:14px;
+}
+.detail-title{font-size:20px;font-weight:800;color:var(--charcoal);margin-bottom:4px;}
+.detail-company{font-size:14px;color:var(--muted);margin-bottom:16px;}
+.detail-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;}
+.detail-tag{
+  display:flex;align-items:center;gap:5px;
+  background:var(--bg);border:1px solid var(--border);
+  padding:6px 10px;border-radius:8px;font-size:13px;color:var(--body);
+}
+.detail-section{margin-bottom:20px;}
+.detail-section-title{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;}
+.detail-text{font-size:14px;color:var(--body);line-height:1.7;}
+.req-list{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.req-list li{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--body);}
+.req-list li::before{content:'✓';color:var(--green);font-weight:800;flex-shrink:0;}
+.panel-footer{padding:16px 20px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0;}
+.btn-apply{
+  flex:1;padding:12px;background:var(--green);color:var(--white);
+  border:none;border-radius:10px;font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:14px;font-weight:700;cursor:pointer;transition:background .15s;
+}
+.btn-apply:hover{background:var(--green-mid);}
+.btn-panel-save{
+  padding:12px 16px;background:var(--white);border:1.5px solid var(--border);
+  border-radius:10px;font-size:16px;cursor:pointer;transition:border-color .15s;
+}
+.btn-panel-save:hover{border-color:var(--green);}
+
+/* ── DASHBOARD PAGE ── */
+.dashboard-content{flex:1;overflow-y:auto;padding:24px;}
+.dash-greeting{margin-bottom:24px;}
+.dash-greeting h2{font-size:22px;font-weight:800;color:var(--charcoal);margin-bottom:4px;}
+.dash-greeting p{font-size:14px;color:var(--muted);}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;}
+.stat-card{
+  background:var(--white);border:1px solid var(--border);border-radius:12px;
+  padding:16px;display:flex;flex-direction:column;gap:4px;
+}
+.stat-card-num{font-size:28px;font-weight:800;color:var(--green);}
+.stat-card-label{font-size:12px;color:var(--muted);font-weight:600;}
+.section-title{font-size:15px;font-weight:800;color:var(--charcoal);margin-bottom:12px;}
+.activity-list{display:flex;flex-direction:column;gap:8px;margin-bottom:24px;}
+.activity-item{
+  background:var(--white);border:1px solid var(--border);border-radius:10px;
+  padding:12px 14px;display:flex;align-items:center;gap:12px;
+}
+.activity-icon{
+  width:36px;height:36px;background:var(--green-light);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;
+}
+.activity-info{flex:1;}
+.activity-title{font-size:13px;font-weight:700;color:var(--charcoal);}
+.activity-sub{font-size:12px;color:var(--muted);}
+.activity-time{font-size:11px;color:var(--muted);}
+.quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.quick-action{
+  background:var(--white);border:1.5px solid var(--border);border-radius:12px;
+  padding:16px;cursor:pointer;transition:border-color .15s,background .15s;
+  display:flex;flex-direction:column;gap:6px;
+}
+.quick-action:hover{border-color:var(--green);background:var(--green-light);}
+.qa-icon{font-size:22px;}
+.qa-title{font-size:13px;font-weight:700;color:var(--charcoal);}
+.qa-sub{font-size:12px;color:var(--muted);}
+
+/* employer cards */
+.employer-jobs{display:flex;flex-direction:column;gap:10px;margin-bottom:24px;}
+.emp-job-card{
+  background:var(--white);border:1px solid var(--border);border-radius:12px;
+  padding:14px;display:flex;align-items:center;gap:12px;
+}
+.emp-job-info{flex:1;}
+.emp-job-title{font-size:14px;font-weight:700;color:var(--charcoal);}
+.emp-job-meta{font-size:12px;color:var(--muted);margin-top:2px;}
+.emp-job-badge{
+  background:var(--gold-light);color:var(--charcoal);
+  font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;
+}
+.btn-sm{
+  padding:8px 14px;background:var(--green);color:var(--white);
+  border:none;border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;
+}
+
+/* ── SAVED / APPLIED ── */
+.list-page{flex:1;overflow-y:auto;padding:24px;}
+.empty-state{
+  text-align:center;padding:60px 20px;
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+}
+.empty-icon{font-size:40px;}
+.empty-title{font-size:16px;font-weight:700;color:var(--charcoal);}
+.empty-sub{font-size:14px;color:var(--muted);}
+
+/* ── MOBILE ── */
+.mobile-bar{
+  display:none;position:fixed;bottom:0;left:0;right:0;
+  background:var(--white);border-top:1px solid var(--border);
+  padding:8px 0 calc(8px + env(safe-area-inset-bottom));
+  z-index:30;
+}
+.mobile-bar-inner{display:flex;justify-content:space-around;}
+.mob-btn{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  border:none;background:none;cursor:pointer;padding:4px 12px;
+}
+.mob-btn .icon{font-size:20px;}
+.mob-btn .label{font-size:10px;font-weight:600;color:var(--muted);}
+.mob-btn.active .label{color:var(--green);}
+
+.overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:15;
+}
+.overlay.show{display:block;}
+
+@media(max-width:768px){
+  .sidebar{position:fixed;top:0;left:0;bottom:0;transform:translateX(-100%);}
+  .sidebar.open{transform:translateX(0);}
+  .hamburger{display:flex;}
+  .mobile-bar{display:block;}
+  .main{padding-bottom:64px;}
+  .stats-row{grid-template-columns:1fr 1fr;}
+  .job-detail-panel{width:100%;}
+  .chat-main{padding-bottom:0;}
+}
+@media(max-width:480px){
+  .stats-row{grid-template-columns:1fr;}
+  .quick-actions{grid-template-columns:1fr;}
+}
+
+/* toast */
+.toast{
+  position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(10px);
+  background:var(--charcoal);color:var(--white);padding:10px 18px;
+  border-radius:10px;font-size:13px;font-weight:600;
+  opacity:0;transition:opacity .3s,transform .3s;z-index:100;white-space:nowrap;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">K</div>
+      <span class="logo-text">Kaz<span>i</span></span>
+    </div>
+
+    <div class="sidebar-role">
+      <div class="role-label">Mode</div>
+      <div class="role-toggle">
+        <button class="role-btn active" id="roleWorker" onclick="setMode('worker')">👷 Find Work</button>
+        <button class="role-btn" id="roleEmployer" onclick="setMode('employer')">🏢 Hire</button>
+      </div>
+    </div>
+
+    <!-- Worker Nav -->
+    <div id="workerNav">
+      <div class="nav-section">
+        <div class="nav-section-label">Workspace</div>
+        <button class="nav-item active" onclick="showPage('chat','chatBtn')">
+          <span class="icon">💬</span> Chat with Kazi
+        </button>
+        <button class="nav-item" onclick="showPage('dashboard','dashBtn')">
+          <span class="icon">📊</span> Dashboard
+        </button>
+        <button class="nav-item" onclick="showPage('saved','savedBtn')">
+          <span class="icon">❤️</span> Saved Jobs
+          <span class="nav-badge">3</span>
+        </button>
+        <button class="nav-item" onclick="showPage('applied','appliedBtn')">
+          <span class="icon">📋</span> Applications
+          <span class="nav-badge">2</span>
+        </button>
+        <button class="nav-item" onclick="showPage('tasks','tasksBtn')">
+          <span class="icon">⏰</span> Tasks
+        </button>
+      </div>
+    </div>
+
+    <!-- Employer Nav -->
+    <div id="employerNav" style="display:none;">
+      <div class="nav-section">
+        <div class="nav-section-label">Hiring</div>
+        <button class="nav-item active" onclick="showPage('hirechat','hirechatBtn')">
+          <span class="icon">💬</span> Post a Job
+        </button>
+        <button class="nav-item" onclick="showPage('empDash','empDashBtn')">
+          <span class="icon">📊</span> Overview
+        </button>
+        <button class="nav-item" onclick="showPage('applicants','applicantsBtn')">
+          <span class="icon">👥</span> Applicants
+          <span class="nav-badge">18</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="sidebar-bottom">
+      <div class="user-chip">
+        <div class="avatar">A</div>
+        <div class="user-info">
+          <div class="user-name">Ada Okafor</div>
+          <div class="user-role" id="userRoleLabel">Job Seeker</div>
+        </div>
+        <span style="color:rgba(255,255,255,.4);font-size:16px;">⚙</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <button class="hamburger" onclick="toggleSidebar()">☰</button>
+      <div class="topbar-title" id="topbarTitle">💬 Chat with Kazi</div>
+      <div class="topbar-actions">
+        <div class="icon-btn" onclick="showToast('No new notifications')">
+          🔔<div class="notif-dot"></div>
+        </div>
+        <div class="icon-btn" style="background:var(--gold);border-color:var(--gold);color:var(--charcoal);font-weight:800;">A</div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- ── WORKER CHAT ── -->
+      <div class="page active" id="page-chat">
+        <div class="chat-wrap">
+          <div class="chat-main">
+            <div class="chat-messages" id="chatMessages">
+              <div class="chat-welcome" id="chatWelcome">
+                <div class="welcome-avatar">🌍</div>
+                <div class="welcome-title">Hi Ada 👋🏾</div>
+                <div class="welcome-sub">Tell me what you're looking for. I'll find the right match — in Pidgin, English, or any language you're comfortable with.</div>
+                <div class="quick-chips">
+                  <div class="chip" onclick="sendQuick('Find me mechanic work around Ikeja')">🔧 Mechanic in Ikeja</div>
+                  <div class="chip" onclick="sendQuick('I need cleaning jobs in Lekki')">🧹 Cleaning in Lekki</div>
+                  <div class="chip" onclick="sendQuick('Find security guard jobs Lagos')">🛡️ Security in Lagos</div>
+                  <div class="chip" onclick="sendQuick('Show me driver jobs Nairobi')">🚗 Driver in Nairobi</div>
+                </div>
+              </div>
+            </div>
+            <div class="chat-input-wrap">
+              <div class="chat-input-box">
+                <textarea class="chat-input" id="chatInput" rows="1" placeholder="Type your skill or location... or speak 🎤" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+                <button class="input-btn" onclick="showToast('Voice recording coming soon!')">🎤</button>
+                <button class="input-btn" onclick="showToast('Attach CV or file')">📎</button>
+                <button class="input-btn send" onclick="sendMessage()">➤</button>
+              </div>
+              <div class="input-hint">Try: "I dey find mechanic work for Ikeja" · "Remind me tomorrow to apply"</div>
+            </div>
+          </div>
+          <!-- Job Detail Panel -->
+          <div class="job-detail-panel" id="jobDetailPanel">
+            <div class="panel-header">
+              <button class="panel-close" onclick="closePanel()">✕</button>
+              <div class="panel-title">Job Details</div>
+              <button class="btn-sm" onclick="showToast('Applied! ✓')">Apply</button>
+            </div>
+            <div class="panel-body" id="panelBody"></div>
+            <div class="panel-footer">
+              <button class="btn-apply" onclick="showToast('Application submitted! ✓')">✓ Apply for this job</button>
+              <button class="btn-panel-save" onclick="showToast('Job saved ❤️')">❤️</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── WORKER DASHBOARD ── -->
+      <div class="page" id="page-dashboard">
+        <div class="dashboard-content">
+          <div class="dash-greeting">
+            <h2>Good morning, Ada 👋🏾</h2>
+            <p>Here's what's happening with your job search.</p>
+          </div>
+          <div class="stats-row">
+            <div class="stat-card">
+              <div class="stat-card-num">12</div>
+              <div class="stat-card-label">Job Matches</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-num">2</div>
+              <div class="stat-card-label">Applications</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-num">3</div>
+              <div class="stat-card-label">Saved Jobs</div>
+            </div>
+          </div>
+          <div class="section-title">Recent Activity</div>
+          <div class="activity-list">
+            <div class="activity-item">
+              <div class="activity-icon">🔧</div>
+              <div class="activity-info">
+                <div class="activity-title">3 mechanic jobs found</div>
+                <div class="activity-sub">Ikeja, Lagos · Matched your skills</div>
+              </div>
+              <div class="activity-time">2h ago</div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon">📋</div>
+              <div class="activity-info">
+                <div class="activity-title">Application viewed</div>
+                <div class="activity-sub">Auto Mechanic — ABC Services</div>
+              </div>
+              <div class="activity-time">Yesterday</div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon">❤️</div>
+              <div class="activity-info">
+                <div class="activity-title">Cleaner job saved</div>
+                <div class="activity-sub">Yaba, Lagos · ₦50,000/month</div>
+              </div>
+              <div class="activity-time">2 days ago</div>
+            </div>
+          </div>
+          <div class="section-title">Quick Actions</div>
+          <div class="quick-actions">
+            <div class="quick-action" onclick="showPage('chat','chatBtn')">
+              <div class="qa-icon">💬</div>
+              <div class="qa-title">Chat with Kazi</div>
+              <div class="qa-sub">Find new opportunities</div>
+            </div>
+            <div class="quick-action" onclick="showPage('applied','appliedBtn')">
+              <div class="qa-icon">📋</div>
+              <div class="qa-title">My Applications</div>
+              <div class="qa-sub">Track your progress</div>
+            </div>
+            <div class="quick-action" onclick="showPage('saved','savedBtn')">
+              <div class="qa-icon">❤️</div>
+              <div class="qa-title">Saved Jobs</div>
+              <div class="qa-sub">3 jobs waiting</div>
+            </div>
+            <div class="quick-action" onclick="showPage('tasks','tasksBtn')">
+              <div class="qa-icon">⏰</div>
+              <div class="qa-title">My Tasks</div>
+              <div class="qa-sub">1 reminder due today</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SAVED ── -->
+      <div class="page" id="page-saved">
+        <div class="list-page">
+          <div class="section-title">Saved Jobs (3)</div>
+          <div class="activity-list">
+            <div class="job-card" onclick="openPanel('cleaner')">
+              <div class="job-card-top">
+                <div class="job-icon">🧹</div>
+                <div class="job-info">
+                  <div class="job-title">House Cleaner</div>
+                  <div class="job-company">HomeHelp Lagos</div>
+                </div>
+              </div>
+              <div class="job-meta">
+                <span class="job-tag">📍 Yaba</span>
+                <span class="job-tag">💰 ₦50,000/mo</span>
+                <span class="job-tag">🕐 Full-time</span>
+              </div>
+              <div class="job-actions">
+                <button class="btn-view" onclick="event.stopPropagation();openPanel('cleaner')">View Details</button>
+                <button class="btn-save" onclick="event.stopPropagation();showToast('Removed from saved')">🗑</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── APPLIED ── -->
+      <div class="page" id="page-applied">
+        <div class="list-page">
+          <div class="section-title">Applications (2)</div>
+          <div class="activity-list">
+            <div class="activity-item">
+              <div class="activity-icon">🔧</div>
+              <div class="activity-info">
+                <div class="activity-title">Auto Mechanic</div>
+                <div class="activity-sub">ABC Auto Services · Applied 2 hours ago</div>
+              </div>
+              <span style="font-size:11px;background:var(--gold-light);color:var(--charcoal);padding:4px 8px;border-radius:6px;font-weight:700;">Viewed</span>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon">🛡️</div>
+              <div class="activity-info">
+                <div class="activity-title">Security Guard</div>
+                <div class="activity-sub">SecureNow · Applied yesterday</div>
+              </div>
+              <span style="font-size:11px;background:var(--green-light);color:var(--green);padding:4px 8px;border-radius:6px;font-weight:700;">Pending</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TASKS ── -->
+      <div class="page" id="page-tasks">
+        <div class="list-page">
+          <div class="section-title">My Tasks</div>
+          <div class="activity-list">
+            <div class="activity-item">
+              <div class="activity-icon">⏰</div>
+              <div class="activity-info">
+                <div class="activity-title">Apply for Auto Mechanic job</div>
+                <div class="activity-sub">Tomorrow · 8:00 AM · Kazi will remind you</div>
+              </div>
+              <button class="btn-sm" onclick="showToast('Task completed ✓')">Done</button>
+            </div>
+          </div>
+          <button class="btn-view" onclick="showToast('Tell Kazi: Remind me tomorrow to...')" style="margin-top:12px;">+ Add Task via Chat</button>
+        </div>
+      </div>
+
+      <!-- ── HIRE CHAT ── -->
+      <div class="page" id="page-hirechat">
+        <div class="chat-wrap">
+          <div class="chat-main">
+            <div class="chat-messages" id="hireChatMessages">
+              <div class="chat-welcome">
+                <div class="welcome-avatar">🌍</div>
+                <div class="welcome-title">Hi Ada 👋🏾</div>
+                <div class="welcome-sub">Tell me who you need. Speak naturally — I'll create the job posting for you.</div>
+                <div class="quick-chips">
+                  <div class="chip" onclick="sendHireQuick('I need a cleaner in Lekki, ₦50,000 per month')">🧹 Need a Cleaner</div>
+                  <div class="chip" onclick="sendHireQuick('Looking for a mechanic in Ikeja')">🔧 Need a Mechanic</div>
+                  <div class="chip" onclick="sendHireQuick('I need a security guard for my shop')">🛡️ Need Security</div>
+                  <div class="chip" onclick="sendHireQuick('Looking for a driver in Nairobi')">🚗 Need a Driver</div>
+                </div>
+              </div>
+            </div>
+            <div class="chat-input-wrap">
+              <div class="chat-input-box">
+                <textarea class="chat-input" id="hireChatInput" rows="1" placeholder="Tell Kazi who you need..." onkeydown="handleHireKey(event)" oninput="autoResize(this)"></textarea>
+                <button class="input-btn" onclick="showToast('Voice recording coming soon!')">🎤</button>
+                <button class="input-btn send" onclick="sendHireMessage()">➤</button>
+              </div>
+              <div class="input-hint">Try: "I need a cleaner in Lekki, ₦50,000 per month, start immediately"</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── EMPLOYER DASHBOARD ── -->
+      <div class="page" id="page-empDash">
+        <div class="dashboard-content">
+          <div class="dash-greeting">
+            <h2>Good morning, Ada 👋🏾</h2>
+            <p>Here's your hiring overview.</p>
+          </div>
+          <div class="stats-row">
+            <div class="stat-card">
+              <div class="stat-card-num">3</div>
+              <div class="stat-card-label">Open Jobs</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-num">18</div>
+              <div class="stat-card-label">Applicants</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-num">6</div>
+              <div class="stat-card-label">Strong Matches</div>
+            </div>
+          </div>
+          <div class="section-title">Active Jobs</div>
+          <div class="employer-jobs">
+            <div class="emp-job-card">
+              <div class="activity-icon">🧹</div>
+              <div class="emp-job-info">
+                <div class="emp-job-title">House Cleaner</div>
+                <div class="emp-job-meta">Lekki · ₦50,000/mo · 18 applicants</div>
+              </div>
+              <div style="display:flex;gap:6px;align-items:center;">
+                <div class="emp-job-badge">18 new</div>
+                <button class="btn-sm" onclick="showPage('applicants','applicantsBtn')">View</button>
+              </div>
+            </div>
+            <div class="emp-job-card">
+              <div class="activity-icon">🔧</div>
+              <div class="emp-job-info">
+                <div class="emp-job-title">Auto Mechanic</div>
+                <div class="emp-job-meta">Ikeja · ₦120,000/mo · 9 applicants</div>
+              </div>
+              <button class="btn-sm" onclick="showPage('applicants','applicantsBtn')">View</button>
+            </div>
+          </div>
+          <div class="quick-actions">
+            <div class="quick-action" onclick="showPage('hirechat','hirechatBtn')">
+              <div class="qa-icon">➕</div>
+              <div class="qa-title">Post New Job</div>
+              <div class="qa-sub">Tell Kazi who you need</div>
+            </div>
+            <div class="quick-action" onclick="showPage('applicants','applicantsBtn')">
+              <div class="qa-icon">👥</div>
+              <div class="qa-title">View Applicants</div>
+              <div class="qa-sub">18 waiting for review</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── APPLICANTS ── -->
+      <div class="page" id="page-applicants">
+        <div class="list-page">
+          <div class="section-title">Applicants — House Cleaner, Lekki</div>
+          <div class="activity-list">
+            <div class="job-card">
+              <div class="job-card-top">
+                <div class="job-icon">👤</div>
+                <div class="job-info">
+                  <div class="job-title">Amina Hassan</div>
+                  <div class="job-company">Lagos · 3 years experience</div>
+                </div>
+                <span style="font-size:11px;background:var(--green-light);color:var(--green);padding:4px 8px;border-radius:6px;font-weight:700;">⭐ Strong</span>
+              </div>
+              <div class="job-match">
+                <span class="match-tag">✓ Cleaning experience</span>
+                <span class="match-tag">✓ Lekki area</span>
+                <span class="match-tag">✓ Available now</span>
+              </div>
+              <div class="job-actions">
+                <button class="btn-view" onclick="showToast('Profile opened')">View Profile</button>
+                <button class="btn-save" onclick="showToast('Message sent!')">💬</button>
+                <button class="btn-save" onclick="showToast('Shortlisted ✓')">📋</button>
+              </div>
+            </div>
+            <div class="job-card">
+              <div class="job-card-top">
+                <div class="job-icon">👤</div>
+                <div class="job-info">
+                  <div class="job-title">Bisi Adeleke</div>
+                  <div class="job-company">Lagos · 1 year experience</div>
+                </div>
+                <span style="font-size:11px;background:var(--gold-light);color:var(--charcoal);padding:4px 8px;border-radius:6px;font-weight:700;">Good</span>
+              </div>
+              <div class="job-match">
+                <span class="match-tag">✓ Cleaning experience</span>
+                <span class="match-tag">✓ Near Lekki</span>
+              </div>
+              <div class="job-actions">
+                <button class="btn-view" onclick="showToast('Profile opened')">View Profile</button>
+                <button class="btn-save" onclick="showToast('Message sent!')">💬</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<div class="mobile-bar">
+  <div class="mobile-bar-inner" id="mobileBar">
+    <button class="mob-btn active" onclick="showPage('chat','chatBtn')"><span class="icon">💬</span><span class="label">Chat</span></button>
+    <button class="mob-btn" onclick="showPage('dashboard','dashBtn')"><span class="icon">📊</span><span class="label">Dashboard</span></button>
+    <button class="mob-btn" onclick="showPage('saved','savedBtn')"><span class="icon">❤️</span><span class="label">Saved</span></button>
+    <button class="mob-btn" onclick="showPage('tasks','tasksBtn')"><span class="icon">⏰</span><span class="label">Tasks</span></button>
+    <button class="mob-btn" onclick="showToast('Profile settings')"><span class="icon">👤</span><span class="label">Profile</span></button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const jobs = {
+  mechanic:{icon:'🔧',title:'Auto Mechanic',company:'ABC Auto Services',loc:'Ikeja, Lagos',pay:'₦120,000/month',type:'Full-time',match:['Mechanic experience','Near Ikeja','Immediate start'],about:'Experienced auto mechanic needed for a busy garage in Ikeja. You will handle engine diagnostics, general repairs, and vehicle maintenance.',reqs:['2+ years experience','Engine diagnostics','General vehicle repairs','Available immediately']},
+  cleaner:{icon:'🧹',title:'House Cleaner',company:'HomeHelp Lagos',loc:'Yaba, Lagos',pay:'₦50,000/month',type:'Full-time',match:['Cleaning experience','Near Yaba','Flexible hours'],about:'We need a reliable, experienced house cleaner for a family home in Yaba. Work is Monday to Friday, 8am–4pm.',reqs:['Cleaning experience','Honest and reliable','Lagos resident','References available']},
+  security:{icon:'🛡️',title:'Security Guard',company:'SecureNow Nigeria',loc:'Victoria Island, Lagos',pay:'₦80,000/month',type:'Full-time',match:['Security experience','Lagos based','Immediate start'],about:'Security guard needed for a commercial property in Victoria Island. 12-hour shifts, day and night rotations available.',reqs:['Security training preferred','Physical fitness','Good communication','Lagos resident']}
+};
+
+let currentMode = 'worker';
+let chatHistory = [];
+
+function setMode(mode){
+  currentMode = mode;
+  document.getElementById('roleWorker').classList.toggle('active', mode==='worker');
+  document.getElementById('roleEmployer').classList.toggle('active', mode==='employer');
+  document.getElementById('workerNav').style.display = mode==='worker'?'':'none';
+  document.getElementById('employerNav').style.display = mode==='employer'?'':'none';
+  document.getElementById('userRoleLabel').textContent = mode==='worker'?'Job Seeker':'Employer';
+  if(mode==='worker') showPage('chat','chatBtn');
+  else showPage('hirechat','hirechatBtn');
+}
+
+function showPage(id, btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const el = document.getElementById('page-'+id);
+  if(el) el.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.mob-btn').forEach(b=>b.classList.remove('active'));
+  const titles = {
+    chat:'💬 Chat with Kazi',dashboard:'📊 Dashboard',
+    saved:'❤️ Saved Jobs',applied:'📋 Applications',tasks:'⏰ Tasks',
+    hirechat:'💬 Post a Job',empDash:'📊 Hiring Overview',applicants:'👥 Applicants'
+  };
+  document.getElementById('topbarTitle').textContent = titles[id]||'Kazi';
+  closePanel();
+  closeSidebar();
+}
+
+function openPanel(jobKey){
+  const job = jobs[jobKey];
+  if(!job) return;
+  document.getElementById('panelBody').innerHTML = `
+    <div class="detail-icon">${job.icon}</div>
+    <div class="detail-title">${job.title}</div>
+    <div class="detail-company">${job.company}</div>
+    <div class="detail-tags">
+      <span class="detail-tag">📍 ${job.loc}</span>
+      <span class="detail-tag">💰 ${job.pay}</span>
+      <span class="detail-tag">🕐 ${job.type}</span>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">About the Job</div>
+      <div class="detail-text">${job.about}</div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">Requirements</div>
+      <ul class="req-list">${job.reqs.map(r=>`<li>${r}</li>`).join('')}</ul>
+    </div>`;
+  document.getElementById('jobDetailPanel').classList.add('open');
+}
+function closePanel(){document.getElementById('jobDetailPanel').classList.remove('open');}
+
+function buildJobCard(key){
+  const j = jobs[key];
+  return `<div class="job-card" onclick="openPanel('${key}')">
+    <div class="job-card-top">
+      <div class="job-icon">${j.icon}</div>
+      <div class="job-info"><div class="job-title">${j.title}</div><div class="job-company">${j.company}</div></div>
+    </div>
+    <div class="job-meta">
+      <span class="job-tag">📍 ${j.loc}</span>
+      <span class="job-tag">💰 ${j.pay}</span>
+      <span class="job-tag">🕐 ${j.type}</span>
+    </div>
+    <div class="job-match">${j.match.map(m=>`<span class="match-tag">✓ ${m}</span>`).join('')}</div>
+    <div class="job-actions">
+      <button class="btn-view" onclick="event.stopPropagation();openPanel('${key}')">View Details</button>
+      <button class="btn-save" onclick="event.stopPropagation();showToast('Saved ❤️')">❤️</button>
+    </div>
+  </div>`;
+}
+
+function addMsg(container, type, content){
+  const welcome = document.getElementById('chatWelcome');
+  if(welcome) welcome.style.display='none';
+  const div = document.createElement('div');
+  div.className = `msg ${type}`;
+  const av = type==='user'?'A':'🌍';
+  div.innerHTML = `<div class="msg-avatar">${av}</div><div class="msg-body"><div class="msg-bubble">${content}</div><div class="msg-time">Just now</div></div>`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return div;
+}
+
+function addTyping(container){
+  const div = document.createElement('div');
+  div.className='msg bot';div.id='typing';
+  div.innerHTML=`<div class="msg-avatar">🌍</div><div class="msg-body"><div class="msg-bubble"><div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>`;
+  container.appendChild(div);container.scrollTop=container.scrollHeight;
+}
+
+function getReply(text){
+  const t = text.toLowerCase();
+  if(t.includes('mechanic')||t.includes('auto')||t.includes('car')||t.includes('engine'))
+    return {text:"Got you! I found <strong>3 mechanic opportunities</strong> matching your request 🔧",cards:['mechanic']};
+  if(t.includes('clean')||t.includes('cleaner')||t.includes('house'))
+    return {text:"Found <strong>2 cleaning jobs</strong> near you 🧹",cards:['cleaner']};
+  if(t.includes('security')||t.includes('guard'))
+    return {text:"Here are <strong>2 security positions</strong> available 🛡️",cards:['security']};
+  if(t.includes('driver')||t.includes('drive'))
+    return {text:"I found <strong>driver opportunities</strong> in your area 🚗",cards:['mechanic','security']};
+  if(t.includes('remind'))
+    return {text:"⏰ Got it! I've set a reminder for you. I'll notify you on Telegram and web.",cards:[]};
+  return {text:"I'm searching for matching opportunities across Lagos, Nairobi, Accra and Kampala... Here's what I found 🌍",cards:['mechanic','cleaner']};
+}
+
+function sendMessage(){
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if(!text) return;
+  input.value='';input.style.height='auto';
+  const container = document.getElementById('chatMessages');
+  addMsg(container,'user',text);
+  addTyping(container);
+  setTimeout(()=>{
+    document.getElementById('typing')?.remove();
+    const reply = getReply(text);
+    const botDiv = document.createElement('div');
+    botDiv.className='msg bot';
+    let cardsHtml = reply.cards.length ? `<div class="job-cards">${reply.cards.map(buildJobCard).join('')}</div>` : '';
+    botDiv.innerHTML=`<div class="msg-avatar">🌍</div><div class="msg-body"><div class="msg-bubble">${reply.text}</div>${cardsHtml}<div class="msg-time">Just now</div></div>`;
+    container.appendChild(botDiv);container.scrollTop=container.scrollHeight;
+  },1200);
+}
+
+function sendQuick(text){document.getElementById('chatInput').value=text;sendMessage();}
+function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}
+
+// Hire chat
+function getHireReply(text){
+  const t=text.toLowerCase();
+  let role='Worker',loc='Lagos',pay='₦50,000/month';
+  if(t.includes('clean')) role='House Cleaner';
+  else if(t.includes('mechanic')) role='Auto Mechanic';
+  else if(t.includes('security')||t.includes('guard')) role='Security Guard';
+  else if(t.includes('driver')) role='Driver';
+  if(t.includes('lekki')) loc='Lekki';
+  else if(t.includes('ikeja')) loc='Ikeja';
+  else if(t.includes('yaba')) loc='Yaba';
+  else if(t.includes('nairobi')) loc='Nairobi';
+  const match = text.match(/₦[\d,]+/);
+  if(match) pay=match[0]+'/month';
+  return {role,loc,pay};
+}
+
+function sendHireMessage(){
+  const input=document.getElementById('hireChatInput');
+  const text=input.value.trim();if(!text)return;
+  input.value='';input.style.height='auto';
+  const container=document.getElementById('hireChatMessages');
+  const welcome=container.querySelector('.chat-welcome');
+  if(welcome) welcome.style.display='none';
+  addMsg(container,'user',text);
+  addTyping(container);
+  setTimeout(()=>{
+    document.getElementById('typing')?.remove();
+    const r=getHireReply(text);
+    const botDiv=document.createElement('div');
+    botDiv.className='msg bot';
+    botDiv.innerHTML=`<div class="msg-avatar">🌍</div><div class="msg-body"><div class="msg-bubble">
+      Got it! Here's what I understood 📋<br><br>
+      <strong>Role:</strong> ${r.role}<br>
+      <strong>Location:</strong> ${r.loc}<br>
+      <strong>Salary:</strong> ${r.pay}<br>
+      <strong>Type:</strong> Full-time<br><br>
+      Is this correct? I'll post the job immediately.
+    </div>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <button class="btn-view" onclick="showToast('Job posted! ✓ Workers will be notified.')">✓ Post Job</button>
+      <button class="btn-save" onclick="showToast('Edit mode...')">✏️ Edit</button>
+    </div>
+    <div class="msg-time">Just now</div></div>`;
+    container.appendChild(botDiv);container.scrollTop=container.scrollHeight;
+  },1200);
+}
+
+function sendHireQuick(text){document.getElementById('hireChatInput').value=text;sendHireMessage();}
+function handleHireKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendHireMessage();}}
+
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('overlay').classList.toggle('show');}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('show');}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+</script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --green: #1A5C38;
+    --green-mid: #2E7D52;
+    --green-light: #E8F5EE;
+    --green-hover: #155130;
+    --gold: #F5A623;
+    --gold-light: #FEF3DC;
+    --charcoal: #1C1C1E;
+    --body: #4A4A4A;
+    --muted: #8A8A8A;
+    --border: #E2EDE7;
+    --white: #FFFFFF;
+    --bg: #F7FAF8;
+    --bg2: #F0F5F2;
+    --red: #C0392B;
+    --radius: 12px;
+    --sidebar: 240px;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--charcoal);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #E2EDE7;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2E7D52;
+}
+
+@keyframes bounceSlow {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-5px); }
+}
+
+.typing-dot {
+  animation: bounceSlow 0.8s infinite;
+}
+.typing-dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.typing-dot:nth-child(3) {
+  animation-delay: 0.3s;
+}

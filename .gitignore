@@ -1,0 +1,20 @@
+# Node modules
+node_modules/
+npm-debug.log*
+
+# Build outputs
+dist/
+build/
+
+# Environment files
+.env
+
+# SQLite database files
+database/*.db
+database/*.db-journal
+
+# OS files
+.DS_Store
+Thumbs.db
+EXAMPLE.env.txt
+.env.example

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { apiFetch } from '../api';
 
 export default function LoginPage({ onLoginSuccess, onCancel }) {
   const [tab, setTab] = useState('signup'); // 'signup' | 'signin'
@@ -73,7 +74,7 @@ export default function LoginPage({ onLoginSuccess, onCancel }) {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/auth/signup', {
+      const response = await apiFetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -127,7 +128,7 @@ export default function LoginPage({ onLoginSuccess, onCancel }) {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/auth/signin', {
+      const response = await apiFetch('/api/auth/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

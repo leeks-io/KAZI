@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { apiFetch } from '../api';
 import {
   LayoutDashboard,
   PlusCircle,
@@ -204,7 +205,7 @@ export default function EmployerDashboard({
 
     // Call shared match API if available
     try {
-      const response = await fetch('/api/match', {
+      const response = await apiFetch('/api/match', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: query, intentHint: 'post_job' })

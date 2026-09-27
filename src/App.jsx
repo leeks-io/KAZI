@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from './api';
 import Navbar from './components/Navbar';
 import MobileMenu from './components/MobileMenu';
 import Hero from './components/Hero';
@@ -48,7 +49,7 @@ export default function App() {
       if (!token) return;
 
       try {
-        const res = await fetch('/api/auth/me', {
+        const res = await apiFetch('/api/auth/me', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();

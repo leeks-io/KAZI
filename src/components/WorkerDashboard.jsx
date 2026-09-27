@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { apiFetch } from '../api';
 import {
   MessageSquare,
   LayoutDashboard,
@@ -233,7 +234,7 @@ export default function WorkerDashboard({
 
     // Try calling backend matching API (/api/match)
     try {
-      const response = await fetch('/api/match', {
+      const response = await apiFetch('/api/match', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: query, intentHint: 'find_job' })
@@ -353,7 +354,7 @@ export default function WorkerDashboard({
     formData.append('intentHint', 'find_job');
 
     try {
-      const res = await fetch('/api/upload-cv', {
+      const res = await apiFetch('/api/upload-cv', {
         method: 'POST',
         body: formData
       });

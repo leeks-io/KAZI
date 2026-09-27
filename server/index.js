@@ -29,6 +29,11 @@ app.use('/api/auth', authRouter);
 
 // API Routes
 
+// 0. GET /health - UptimeRobot keepalive ping endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 // 1. GET /api/jobs - List all open jobs
 app.get('/api/jobs', async (req, res) => {
   try {

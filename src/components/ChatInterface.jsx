@@ -3,6 +3,7 @@ import { Paperclip, ArrowUp, Mic, MicOff, Loader2, Sparkles, Send } from 'lucide
 import TogglePill from './TogglePill';
 import MessageBubble from './MessageBubble';
 import KaziLogo from './KaziLogo';
+import { apiFetch } from '../api';
 
 export default function ChatInterface({
   activeTab,
@@ -54,7 +55,7 @@ export default function ChatInterface({
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/match', {
+      const response = await apiFetch('/api/match', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -128,7 +129,7 @@ export default function ChatInterface({
     formData.append('intentHint', activeTab);
 
     try {
-      const response = await fetch('/api/upload-cv', {
+      const response = await apiFetch('/api/upload-cv', {
         method: 'POST',
         body: formData
       });
@@ -218,7 +219,7 @@ export default function ChatInterface({
     formData.append('intentHint', activeTab);
 
     try {
-      const response = await fetch('/api/transcribe', {
+      const response = await apiFetch('/api/transcribe', {
         method: 'POST',
         body: formData
       });

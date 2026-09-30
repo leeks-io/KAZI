@@ -9,13 +9,17 @@
  */
 const RENDER_API_URL = 'https://kazi-1-3bl6.onrender.com';
 
-export const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? RENDER_API_URL : '');
+const configuredApiUrl = import.meta.env.VITE_API_URL?.trim();
+const rawApiBase = configuredApiUrl || (import.meta.env.PROD ? RENDER_API_URL : '');
+
+// Avoid malformed URLs when Vercel's variable is entered with a trailing slash.
+export const API_BASE = rawApiBase.replace(/\/+$/, '');
 
 /**
  * Convenience wrapper — usage:
  *   import { apiFetch } from '../api';
- *   const res = await apiFetch('/api/jobs');
  */
 export function apiFetch(path, options = {}) {
-  return fetch(`${API_BASE}${path}`, options);
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  return fetch(`${API_BASE}${normalizedPath}`, options);
 }

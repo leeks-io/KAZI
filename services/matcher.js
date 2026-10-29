@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { GoogleGenAI } = require('@google/genai');
 const { dbAll, dbRun } = require('../database/db');
 
 /**
@@ -162,14 +162,16 @@ Note: If the input is just a greeting (like 'hello', 'hi', 'hey', 'good morning'
 `;
 
   try {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-flash-latest',
-      generationConfig: { responseMimeType: 'application/json' }
+    const ai = new GoogleGenAI({ apiKey });
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+      config: {
+        responseMimeType: 'application/json'
+      }
     });
 
-    const result = await model.generateContent(prompt);
-    const rawContent = result.response.text();
+    const rawContent = response.text;
 
     if (!rawContent) {
       return fallbackExtractEntities(text, intentHint);

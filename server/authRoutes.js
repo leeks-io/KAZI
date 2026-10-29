@@ -174,6 +174,82 @@ router.post('/signin', async (req, res) => {
   }
 });
 
+// ─── POST /api/auth/google ───────────────────────────────────────────────────
+router.post('/google', async (req, res) => {
+  try {
+    const { email, name, firstName, lastName, role, avatarUrl, googleId } = req.body;
+
+    if (!email || !email.trim()) {
+      return res.status(400).json({ success: false, error: 'Email is required for Google sign-in.' });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const validRoles = ['worker', 'employer'];
+    const userRole = validRoles.includes(role) ? role : 'worker';
+
+    // Check if user already exists
+    let user = await dbGet('SELECT * FROM web_users WHERE email = ?', [cleanEmail]);
+
+    if (!user) {
+      // Parse names
+      let fName = (firstName || '').trim();
+      let lName = (lastName || '').trim();
+      if (!fName && name) {
+        const parts = name.trim().split(/\s+/);
+        fName = parts[0] || 'User';
+        lName = parts.slice(1).join(' ') || '';
+      }
+      if (!fName) fName = cleanEmail.split('@')[0] || 'Google User';
+
+      // Generate a secure dummy password hash for the database requirement
+      const dummySecret = 'google_oauth_' + Math.random().toString(36).slice(2) + Date.now();
+      const salt = await bcrypt.genSalt(10);
+      const passwordHash = await bcrypt.hash(dummySecret, salt);
+
+      const result = await dbRun(
+        `INSERT INTO web_users (first_name, last_name, email, phone, password_hash, role, avatar_url, is_verified)
+         VALUES (?, ?, ?, ?, ?, ?, ?, 1)`,
+        [fName, lName, cleanEmail, '', passwordHash, userRole, avatarUrl || null]
+      );
+
+      user = await dbGet('SELECT * FROM web_users WHERE id = ?', [result.id]);
+      console.log(`✅ New user registered via Google: ${user.email} (${user.role})`);
+    } else {
+      // User exists: update role, is_verified, and avatar if provided
+      await dbRun(
+        `UPDATE web_users SET last_login = CURRENT_TIMESTAMP, is_verified = 1, role = ? WHERE id = ?`,
+        [userRole, user.id]
+      );
+      user = await dbGet('SELECT * FROM web_users WHERE id = ?', [user.id]);
+      console.log(`✅ User signed in via Google: ${user.email} (${user.role})`);
+    }
+
+    const token = generateToken(user);
+
+    res.json({
+      success: true,
+      message: `Welcome to Kazi, ${user.first_name}!`,
+      user: {
+        id: user.id,
+        name: `${user.first_name} ${user.last_name}`.trim(),
+        firstName: user.first_name,
+        lastName: user.last_name,
+        email: user.email,
+        phone: user.phone || '',
+        role: user.role,
+        avatarUrl: user.avatar_url,
+        telegramId: user.telegram_id,
+        isVerified: true,
+        createdAt: user.created_at
+      },
+      token
+    });
+  } catch (err) {
+    console.error('Google sign-in error:', err);
+    res.status(500).json({ success: false, error: 'Google sign-in failed. Please try again.' });
+  }
+});
+
 // ─── GET /api/auth/me ────────────────────────────────────────────────────────
 router.get('/me', authMiddleware, async (req, res) => {
   try {

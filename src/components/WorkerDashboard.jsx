@@ -52,91 +52,110 @@ export default function WorkerDashboard({
     setTimeout(() => setToast(null), 3000);
   };
 
-  // Pre-populated seed jobs for worker view
-  const defaultJobs = [
-    {
-      id: 'mech-1',
-      key: 'mechanic',
-      icon: '🔧',
-      title: 'Auto Mechanic',
-      company: 'ABC Auto Services',
-      location: 'Ikeja, Lagos',
-      salary: '₦120,000/month',
-      type: 'Full-time',
-      match: ['Mechanic experience', 'Near Ikeja', 'Immediate start'],
-      about: 'Experienced auto mechanic needed for a busy garage in Ikeja. You will handle engine diagnostics, general repairs, and routine vehicle maintenance.',
-      reqs: ['2+ years garage experience', 'Engine diagnostics & overhaul', 'General electrical knowledge', 'Available immediately']
-    },
-    {
-      id: 'clean-1',
-      key: 'cleaner',
-      icon: '🧹',
-      title: 'House Cleaner',
-      company: 'HomeHelp Lagos',
-      location: 'Yaba, Lagos',
-      salary: '₦50,000/month',
-      type: 'Full-time',
-      match: ['Cleaning experience', 'Near Yaba', 'Flexible hours'],
-      about: 'We need a reliable, experienced house cleaner for a family residence in Yaba. Work is Monday to Friday, 8am–4pm.',
-      reqs: ['Previous residential cleaning experience', 'Honest, trustworthy, and reliable', 'Lagos resident', 'Guarantor references required']
-    },
-    {
-      id: 'sec-1',
-      key: 'security',
-      icon: '🛡️',
-      title: 'Corporate Security Guard',
-      company: 'SecureNow Nigeria',
-      location: 'Victoria Island, Lagos',
-      salary: '₦80,000/month',
-      type: 'Full-time',
-      match: ['Security training', 'Lagos based', 'Shift rotation'],
-      about: 'Security guard needed for a commercial corporate property in Victoria Island. 12-hour shifts, day and night rotations available.',
-      reqs: ['Security training certification preferred', 'High physical fitness', 'Good English and Pidgin communication', 'Lagos resident']
-    },
-    {
-      id: 'drive-1',
-      key: 'driver',
-      icon: '🚗',
-      title: 'Private & Corporate Driver',
-      company: 'Swift Logistics Hub',
-      location: 'Surulere, Lagos',
-      salary: '₦110,000/month',
-      type: 'Full-time',
-      match: ['Valid Driver’s License', 'Clean driving record', 'Surulere area'],
-      about: 'Professional driver needed for corporate executive transportation and fleet handling across Lagos Mainland and Island routes.',
-      reqs: ['Valid Nigerian driver license (Class E/D)', 'Minimum 4 years driving experience in Lagos', 'Familiarity with GPS and Lagos road network', 'Good communication']
-    }
-  ];
+  // Real Database Jobs State
+  const [jobs, setJobs] = useState([]);
+  const [isLoadingJobs, setIsLoadingJobs] = useState(true);
 
-  // Saved Jobs State
-  const [savedJobs, setSavedJobs] = useState([
-    defaultJobs[1], // House Cleaner
-    defaultJobs[0]  // Auto Mechanic
-  ]);
+  // Real Saved Jobs State
+  const [savedJobs, setSavedJobs] = useState(externalSavedJobs || []);
 
-  // Applications State
-  const [applications, setApplications] = useState([
-    {
-      id: 'app-1',
-      jobId: 'mech-1',
-      title: 'Auto Mechanic',
-      company: 'ABC Auto Services',
-      location: 'Ikeja, Lagos',
-      appliedAt: '2 hours ago',
-      status: 'Viewed', // 'Viewed' | 'Pending' | 'Interview Scheduled'
-      statusColor: 'bg-[#FEF3DC] text-[#B7791F]'
-    },
-    {
-      id: 'app-2',
-      jobId: 'sec-1',
-      title: 'Corporate Security Guard',
-      company: 'SecureNow Nigeria',
-      location: 'Victoria Island, Lagos',
-      appliedAt: 'Yesterday',
-      status: 'Pending',
-      statusColor: 'bg-[#E8F5EE] text-[#1A5C38]'
-    }
-  ]);
+  // Real Applications State
+  const [applications, setApplications] = useState(externalApplications || []);
+
+  // Fetch real jobs, applications, and saved jobs on load
+  useEffect(() => {
+    const fetchRealData = async () => {
+      try {
+        const res = await apiFetch('/api/jobs');
+        const data = await res.json();
+        if (data.success && data.jobs) {
+          setJobs(
+            data.jobs.map(j => ({
+              id: j.id,
+              key: j.skill || 'general',
+              icon:
+                j.skill === 'cleaner'
+                  ? '🧹'
+                  : j.skill === 'driver'
+                  ? '🚗'
+                  : j.skill === 'security guard'
+                  ? '🛡️'
+                  : j.skill === 'mechanic'
+                  ? '🔧'
+                  : j.skill === 'electrician'
+                  ? '⚡'
+                  : j.skill === 'welder'
+                  ? '🔥'
+                  : j.skill === 'tailor'
+                  ? '✂️'
+                  : '💼',
+              title: j.title,
+              company: j.company_name || 'Kazi Verified Employer',
+              location: j.location,
+              salary: j.salary,
+              type: j.type || 'Full-time',
+              skill: j.skill,
+              match: [
+                j.skill ? `${j.skill.toUpperCase()} skill match` : 'Skill match',
+                j.location ? `Located in ${j.location}` : 'Area match',
+                'Verified opportunity'
+              ],
+              about: `Verified African informal economy role for ${j.title}. Immediate start available with prompt payment.`,
+              reqs: ['Prior experience in role', 'Available immediately', 'Honest and punctual']
+            }))
+          );
+        }
+      } catch (err) {
+        console.error('Error fetching jobs:', err);
+      } finally {
+        setIsLoadingJobs(false);
+      }
+
+      // Fetch real user applications if user has email
+      if (user?.email) {
+        try {
+          const appRes = await apiFetch(`/api/applications?email=${encodeURIComponent(user.email)}`);
+          const appData = await appRes.json();
+          if (appData.success && appData.applications) {
+            setApplications(
+              appData.applications.map(a => ({
+                id: a.id,
+                jobId: a.job_id,
+                title: a.job_title || 'Applied Role',
+                company: a.company_name || 'Kazi Employer',
+                location: a.job_location || a.location || 'Lagos',
+                appliedAt: new Date(a.applied_at || Date.now()).toLocaleDateString(),
+                status: a.status ? a.status.charAt(0).toUpperCase() + a.status.slice(1) : 'Pending',
+                statusColor: a.status === 'accepted' ? 'bg-[#E8F5EE] text-[#1A5C38]' : 'bg-[#FEF3DC] text-[#B7791F]'
+              }))
+            );
+          }
+        } catch (e) {}
+
+        // Fetch real saved jobs
+        try {
+          const savedRes = await apiFetch(`/api/saved-jobs?email=${encodeURIComponent(user.email)}`);
+          const savedData = await savedRes.json();
+          if (savedData.success && savedData.savedJobs) {
+            setSavedJobs(
+              savedData.savedJobs.map(j => ({
+                id: j.id,
+                key: j.skill || 'general',
+                icon: '💼',
+                title: j.title,
+                company: j.company_name,
+                location: j.location,
+                salary: j.salary,
+                type: j.type
+              }))
+            );
+          }
+        } catch (e) {}
+      }
+    };
+
+    fetchRealData();
+  }, [user?.email]);
 
   // Tasks State
   const [tasks, setTasks] = useState([
@@ -162,7 +181,7 @@ export default function WorkerDashboard({
     {
       id: 'm-welcome',
       sender: 'bot',
-      text: "Hi Ada 👋🏾 Tell me what kind of work you're looking for! You can type in Pidgin, English, or any language you're comfortable with, or tap the microphone.",
+      text: `Hi ${user?.firstName || user?.name || 'there'} 👋🏾 Tell me what kind of work you're looking for! You can type in Pidgin, English, or any language you're comfortable with, or tap the microphone.`,
       cards: [],
       time: 'Just now'
     }
@@ -177,44 +196,77 @@ export default function WorkerDashboard({
     chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages, isTyping]);
 
-  // Handle Save / Unsave
-  const toggleSaveJob = (job) => {
+  // Handle Save / Unsave with Real Database Persistence
+  const toggleSaveJob = async (job) => {
     const isSaved = savedJobs.some(j => j.id === job.id || j.title === job.title);
     if (isSaved) {
       setSavedJobs(prev => prev.filter(j => j.id !== job.id && j.title !== job.title));
+      try {
+        await apiFetch(`/api/saved-jobs/${job.id}?email=${encodeURIComponent(user?.email || 'web_user')}`, {
+          method: 'DELETE'
+        });
+      } catch (e) {}
       showToast('Removed from saved jobs');
     } else {
       setSavedJobs(prev => [job, ...prev]);
+      try {
+        await apiFetch('/api/saved-jobs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ jobId: job.id, email: user?.email || 'web_user' })
+        });
+      } catch (e) {}
       showToast(`Saved "${job.title}" ❤️`);
     }
     if (onSaveJob) onSaveJob(job);
   };
 
-  // Handle Apply
-  const applyForJob = (job) => {
-    const alreadyApplied = applications.some(a => a.title === job.title);
+  // Handle Apply with Real Database Persistence
+  const applyForJob = async (job) => {
+    const alreadyApplied = applications.some(a => a.jobId === job.id || a.title === job.title);
     if (alreadyApplied) {
       showToast('You have already applied for this job!');
       return;
     }
 
-    const newApp = {
-      id: 'app-' + Date.now(),
-      jobId: job.id,
-      title: job.title,
-      company: job.company || job.company_name || 'Kazi Employer',
-      location: job.location || 'Lagos',
-      appliedAt: 'Just now',
-      status: 'Pending',
-      statusColor: 'bg-[#E8F5EE] text-[#1A5C38]'
-    };
+    try {
+      const res = await apiFetch('/api/applications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jobId: job.id,
+          applicantName: user?.name || user?.firstName || 'Kazi Worker',
+          email: user?.email || '',
+          phone: user?.phone || '',
+          location: user?.location || job.location || 'Lagos'
+        })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        showToast(data.error || 'Application failed', 'error');
+        return;
+      }
 
-    setApplications(prev => [newApp, ...prev]);
-    showToast(`Application submitted for ${job.title}! ✓`);
-    if (onApplyJob) onApplyJob(job);
+      const newApp = {
+        id: data.application?.id || 'app-' + Date.now(),
+        jobId: job.id,
+        title: job.title,
+        company: job.company || job.company_name || 'Kazi Employer',
+        location: job.location || 'Lagos',
+        appliedAt: 'Just now',
+        status: 'Pending',
+        statusColor: 'bg-[#E8F5EE] text-[#1A5C38]'
+      };
+
+      setApplications(prev => [newApp, ...prev]);
+      showToast(`Application submitted for ${job.title}! ✓`);
+      if (onApplyJob) onApplyJob(job);
+    } catch (err) {
+      showToast('Network error submitting application.', 'error');
+    }
   };
 
-  // Handle Chat Send
+  // Handle Real-Time Streaming Chat Send
   const handleSendMessage = async (textToSend) => {
     const query = (textToSend || chatInput).trim();
     if (!query) return;
@@ -232,94 +284,129 @@ export default function WorkerDashboard({
     setChatMessages(prev => [...prev, userMsg]);
     setIsTyping(true);
 
-    // Try calling backend matching API (/api/match)
+    const botMsgId = 'bot-' + Date.now();
+    setChatMessages(prev => [
+      ...prev,
+      {
+        id: botMsgId,
+        sender: 'bot',
+        text: '',
+        streaming: true,
+        cards: [],
+        time: 'Just now'
+      }
+    ]);
+
     try {
-      const response = await apiFetch('/api/match', {
+      const response = await apiFetch('/api/chat/stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: query, intentHint: 'find_job' })
+        body: JSON.stringify({ message: query, role: 'worker', user })
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setIsTyping(false);
+      if (!response.ok || !response.body) throw new Error('Stream failed');
 
-        let matchedCards = [];
-        if (data.matched_jobs && data.matched_jobs.length > 0) {
-          matchedCards = data.matched_jobs.slice(0, 3).map(j => ({
-            id: 'job-' + j.id,
-            key: j.skill || 'mechanic',
-            icon: j.skill === 'cleaner' ? '🧹' : j.skill === 'driver' ? '🚗' : j.skill === 'security guard' ? '🛡️' : '🔧',
-            title: j.title,
-            company: j.company_name || 'Kazi Verified Employer',
-            location: j.location,
-            salary: j.salary,
-            type: j.type || 'Full-time',
-            match: j.matched_fields ? Object.keys(j.matched_fields).map(k => `${k}: ${j.matched_fields[k]}`) : ['Skill match', 'Location match'],
-            about: `Verified African informal economy role for ${j.title}. Immediate start available.`,
-            reqs: ['Prior experience in role', 'Available to work', 'Lagos / local resident', 'Punctual and honest']
-          }));
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedText = '';
+      let matchData = null;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunkStr = decoder.decode(value, { stream: true });
+        const lines = chunkStr.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              if (data.text) {
+                accumulatedText += data.text;
+                setChatMessages(prev =>
+                  prev.map(m => m.id === botMsgId ? { ...m, text: accumulatedText } : m)
+                );
+              }
+              if (data.done && data.matchData) {
+                matchData = data.matchData;
+              }
+            } catch (e) {}
+          }
         }
-
-        const botReply = {
-          id: 'bot-' + Date.now(),
-          sender: 'bot',
-          text: data.reply || (matchedCards.length > 0
-            ? `I found **${matchedCards.length} verified jobs** matching your search! Take a look below:`
-            : `I've noted your profile for **"${query}"**. Let me search our SQLite network for upcoming openings.`),
-          cards: matchedCards,
-          time: 'Just now'
-        };
-        setChatMessages(prev => [...prev, botReply]);
-        return;
       }
+
+      let matchedCards = [];
+      if (matchData && matchData.jobs && matchData.jobs.length > 0) {
+        matchedCards = matchData.jobs.map(j => ({
+          id: j.id,
+          key: j.skill || 'general',
+          icon: j.skill === 'cleaner' ? '🧹' : j.skill === 'driver' ? '🚗' : j.skill === 'security guard' ? '🛡️' : j.skill === 'mechanic' ? '🔧' : '💼',
+          title: j.title,
+          company: j.company_name || 'Kazi Verified Employer',
+          location: j.location,
+          salary: j.salary,
+          type: j.type || 'Full-time',
+          match: [j.skill ? `${j.skill.toUpperCase()}` : 'Skill', j.location ? `${j.location}` : 'Location'],
+          about: `Verified African informal economy role for ${j.title}. Immediate start available.`,
+          reqs: ['Prior experience in role', 'Available immediately', 'Punctual and honest']
+        }));
+      }
+
+      setChatMessages(prev =>
+        prev.map(m =>
+          m.id === botMsgId
+            ? {
+                ...m,
+                text: accumulatedText || 'Here are the matching opportunities from our live database:',
+                cards: matchedCards,
+                streaming: false
+              }
+            : m
+        )
+      );
     } catch (err) {
-      console.warn('Backend match API fallback:', err);
-    }
-
-    // Local fallback matching
-    setTimeout(() => {
-      setIsTyping(false);
-      const q = query.toLowerCase();
-      let replyText = "I searched our network across Lagos, Nairobi, and Accra. Here are the top matches:";
-      let cards = [defaultJobs[0], defaultJobs[1]];
-
-      if (q.includes('mechanic') || q.includes('car') || q.includes('auto')) {
-        replyText = "Got you! I found **2 auto mechanic opportunities** in Ikeja and Surulere 🔧";
-        cards = [defaultJobs[0]];
-      } else if (q.includes('clean') || q.includes('house') || q.includes('maid')) {
-        replyText = "Found **2 verified cleaning positions** near Yaba and Lekki 🧹";
-        cards = [defaultJobs[1]];
-      } else if (q.includes('security') || q.includes('guard')) {
-        replyText = "Here are **2 corporate security positions** with prompt monthly pay 🛡️";
-        cards = [defaultJobs[2]];
-      } else if (q.includes('driver') || q.includes('drive') || q.includes('ride')) {
-        replyText = "I found **driver opportunities** in Lagos Mainland & Island 🚗";
-        cards = [defaultJobs[3]];
-      } else if (q.includes('remind') || q.includes('task')) {
-        replyText = "⏰ Done! I've scheduled a reminder for you. I'll notify you on your dashboard.";
-        cards = [];
-        setTasks(prev => [
-          {
-            id: Date.now(),
-            title: query,
-            time: 'Scheduled reminder · Kazi Bot',
-            completed: false
-          },
-          ...prev
-        ]);
-        showToast('New reminder created! ⏰');
+      console.warn('Streaming chat fallback:', err);
+      try {
+        const res = await apiFetch('/api/match', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: query, intentHint: 'find_job' })
+        });
+        const data = await res.json();
+        setChatMessages(prev =>
+          prev.map(m =>
+            m.id === botMsgId
+              ? {
+                  ...m,
+                  text: data.message || `Here are the matching opportunities in our database:`,
+                  cards: (data.jobs || []).map(j => ({
+                    id: j.id,
+                    key: j.skill || 'general',
+                    icon: '💼',
+                    title: j.title,
+                    company: j.company_name,
+                    location: j.location,
+                    salary: j.salary,
+                    type: j.type
+                  })),
+                  streaming: false
+                }
+              : m
+          )
+        );
+      } catch (e) {
+        setChatMessages(prev =>
+          prev.map(m =>
+            m.id === botMsgId
+              ? { ...m, text: '⚠️ Connection issue. Please try typing your request again.', streaming: false }
+              : m
+          )
+        );
       }
-
-      const botReply = {
-        id: 'bot-' + Date.now(),
-        sender: 'bot',
-        text: replyText,
-        cards,
-        time: 'Just now'
-      };
-      setChatMessages(prev => [...prev, botReply]);
-    }, 900);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   // Voice recording simulation or browser speech

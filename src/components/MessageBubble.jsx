@@ -35,7 +35,19 @@ export default function MessageBubble({ message, onApplyJob, onSaveJob, applicat
           </div>
         )}
 
-        <div className="whitespace-pre-line">{message.text}</div>
+        {message.streaming && !message.text ? (
+          <div className="flex items-center gap-2 py-1 text-xs text-[#F2A03D]">
+            <span className="w-2 h-2 rounded-full bg-[#F2A03D] animate-ping" />
+            <span className="font-medium">Replying in real time...</span>
+          </div>
+        ) : (
+          <div className="whitespace-pre-line">
+            {message.text}
+            {message.streaming && (
+              <span className="inline-block w-1.5 h-4 ml-1 bg-[#F5A623] animate-pulse align-middle rounded-sm" />
+            )}
+          </div>
+        )}
 
         {/* If message contains job cards */}
         {message.jobs && message.jobs.length > 0 && (

@@ -1,0 +1,7 @@
+{
+  "name": "KAZI — Voice-First Informal Economy Job Matching",
+  "description": "Voice-first job-matching platform connecting Africa's informal economy workers and employers.",
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

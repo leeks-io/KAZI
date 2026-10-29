@@ -4,7 +4,7 @@
   "description": "Kazi — Voice-first job-matching platform for Africa's informal economy",
   "main": "server/index.js",
   "scripts": {
-    "dev": "vite",
+    "dev": "node server/index.js",
     "build": "vite build",
     "preview": "vite preview",
     "seed": "node database/initDb.js",
@@ -22,7 +22,7 @@
   "author": "Kazi Team",
   "license": "MIT",
   "dependencies": {
-    "@google/generative-ai": "^0.21.0",
+    "@google/genai": "^2.32.0",
     "@tailwindcss/vite": "^4.0.0",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.20",

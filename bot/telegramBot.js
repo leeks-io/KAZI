@@ -1,5 +1,6 @@
 require('dotenv').config();
 const { Telegraf, Markup } = require('telegraf');
+const { GoogleGenAI } = require('@google/genai');
 const { matchJobOrPost, isGreetingOrGeneralQuery } = require('../services/matcher');
 const { dbRun, dbGet, dbAll } = require('../database/db');
 
@@ -201,25 +202,25 @@ async function transcribeAudioWithGemini(audioBuffer, mimeType = 'audio/ogg') {
   }
 
   try {
-    const base64Audio = audioBuffer.toString('base64');
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{
-            parts: [
-              { text: 'Transcribe this African job seeker or employer voice note accurately into plain text. Return ONLY the transcribed text.' },
-              { inline_data: { mime_type: mimeType, data: base64Audio } }
-            ]
-          }]
-        })
-      }
-    );
-    if (!response.ok) return 'I need a job in Lagos';
-    const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    const ai = new GoogleGenAI({ apiKey });
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: [
+        {
+          role: 'user',
+          parts: [
+            { text: 'Transcribe this African job seeker or employer voice note accurately into plain text. Return ONLY the transcribed text.' },
+            {
+              inlineData: {
+                mimeType: mimeType,
+                data: audioBuffer.toString('base64')
+              }
+            }
+          ]
+        }
+      ]
+    });
+    const text = response.text;
     return text ? text.trim() : 'I need a job in Lagos';
   } catch (err) {
     console.error('[Bot] Transcription error:', err.message);

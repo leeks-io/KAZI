@@ -38,7 +38,7 @@ export default function ChatInterface({
     chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
 
-  // Handle Send Text Message
+  // Handle Send Text Message with Real-Time Streaming
   const handleSendMessage = async (textToSend = inputText) => {
     const text = textToSend.trim();
     if (!text || isLoading) return;
@@ -54,56 +54,121 @@ export default function ChatInterface({
     setInputText('');
     setIsLoading(true);
 
+    const kaziMsgId = (Date.now() + 1).toString();
+    // Add real-time streaming placeholder
+    setMessages(prev => [
+      ...prev,
+      {
+        id: kaziMsgId,
+        sender: 'kazi',
+        text: '',
+        streaming: true,
+        jobs: null,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }
+    ]);
+
     try {
-      const response = await apiFetch('/api/match', {
+      const response = await apiFetch('/api/chat/stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          text,
-          intentHint: activeTab
+          message: text,
+          role: activeTab === 'post_job' ? 'employer' : 'worker'
         })
       });
 
-      const data = await response.json();
-
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to fetch match');
+      if (!response.ok || !response.body) {
+        throw new Error('Streaming connection failed');
       }
 
-      let botReplyText = '';
-      if (data.action === 'greeting') {
-        botReplyText = data.message;
-      } else if (data.action === 'post_job') {
-        botReplyText = `✅ **Job Posted Successfully!**\n\nYour posting for **${data.job.title}** in ${data.job.location} with salary ${data.job.salary} is now active on Kazi and visible in your Employer Dashboard!`;
-        if (onNewPosting && data.job) {
-          onNewPosting(data.job);
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedText = '';
+      let matchData = null;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunkStr = decoder.decode(value, { stream: true });
+        const lines = chunkStr.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              if (data.text) {
+                accumulatedText += data.text;
+                setMessages(prev =>
+                  prev.map(m => m.id === kaziMsgId ? { ...m, text: accumulatedText } : m)
+                );
+              }
+              if (data.done && data.matchData) {
+                matchData = data.matchData;
+              }
+            } catch (e) {}
+          }
         }
+      }
+
+      // Stream finished — update with real job matches or job post confirmation
+      if (matchData) {
+        if (matchData.action === 'post_job' && matchData.job && onNewPosting) {
+          onNewPosting(matchData.job);
+        }
+        setMessages(prev =>
+          prev.map(m =>
+            m.id === kaziMsgId
+              ? {
+                  ...m,
+                  text: accumulatedText || (matchData.action === 'post_job' ? '✅ Job Posted Successfully!' : 'Here are your top matches:'),
+                  jobs: matchData.action === 'find_job' ? matchData.jobs : null,
+                  streaming: false
+                }
+              : m
+          )
+        );
       } else {
-        botReplyText = data.jobs && data.jobs.length > 0
-          ? `🔍 I found ${data.jobs.length} top job matches for you based on your request:`
-          : `🔍 No exact job matches found for '${text}' right now. Try searching for skills like mechanic, cleaner, tailor, driver, electrician, or plumber in Lagos, Nairobi, Kampala, or Accra!`;
+        setMessages(prev =>
+          prev.map(m => (m.id === kaziMsgId ? { ...m, streaming: false } : m))
+        );
       }
-
-      const kaziMsg = {
-        id: (Date.now() + 1).toString(),
-        sender: 'kazi',
-        text: botReplyText,
-        jobs: data.action === 'find_job' ? data.jobs : null,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-
-      setMessages(prev => [...prev, kaziMsg]);
     } catch (err) {
-      console.error('Error sending message:', err);
-      setMessages(prev => [
-        ...prev,
-        {
-          id: (Date.now() + 1).toString(),
-          sender: 'kazi',
-          text: '⚠️ Sorry, there was an issue processing your request. Please try again.',
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        }
-      ]);
+      console.error('Error during streaming:', err);
+      // Fallback to /api/match if stream fails
+      try {
+        const fallbackRes = await apiFetch('/api/match', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text, intentHint: activeTab })
+        });
+        const fallbackData = await fallbackRes.json();
+        setMessages(prev =>
+          prev.map(m =>
+            m.id === kaziMsgId
+              ? {
+                  ...m,
+                  text: fallbackData.message || (fallbackData.jobs?.length > 0 ? `I found ${fallbackData.jobs.length} top job matches for you:` : 'No exact matches found right now.'),
+                  jobs: fallbackData.action === 'find_job' ? fallbackData.jobs : null,
+                  streaming: false
+                }
+              : m
+          )
+        );
+      } catch (e) {
+        setMessages(prev =>
+          prev.map(m =>
+            m.id === kaziMsgId
+              ? {
+                  ...m,
+                  text: '⚠️ Sorry, there was an issue connecting to the AI service. Please try again.',
+                  streaming: false
+                }
+              : m
+          )
+        );
+      }
     } finally {
       setIsLoading(false);
     }

@@ -1,4 +1,4 @@
-const { dbRun, dbAll } = require('./db');
+const { dbRun, dbAll, dbGet } = require('./db');
 
 const seedJobs = [
   {
